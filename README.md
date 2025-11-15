@@ -40,6 +40,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Auth
 
+### src/model
 model folder add all user host root type data base creations new and check and connect
 
+### src/schemas
 schemas folder add all validation for my sefty data travers in validate
+
+### src/lib
+connect mongodb Atls
