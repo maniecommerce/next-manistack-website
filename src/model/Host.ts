@@ -11,6 +11,7 @@ export interface Host extends Document {
   verifyCode: string;
   verifyCodeExpiry: Date; 
   isVerified: boolean;
+  referralCode: string;
   isAcceptingMessages: boolean;
   messages: Message[];
 }
@@ -37,6 +38,10 @@ const HostSchema: Schema<Host> = new mongoose.Schema({
   verifyCode: {
     type: String,
     required: [true, 'Verify Code is required'],
+  },
+  referralCode: {
+    type: String,
+    required: [true, 'referral code is required'],
   },
   verifyCodeExpiry: {
     type: Date,

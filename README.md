@@ -48,3 +48,10 @@ schemas folder add all validation for my sefty data travers in validate
 
 ### src/lib
 connect mongodb Atls
+resend
+
+### src/helper
+
+### src/api/sign-up
+
+## src/api/auth
