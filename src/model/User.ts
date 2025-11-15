@@ -11,8 +11,12 @@ export interface User extends Document {
   verifyCode: string;
   verifyCodeExpiry: Date; 
   isVerified: boolean;
+  userWallet:number;
   isAcceptingMessages: boolean;
   messages: Message[];
+  // NEW FIELDS
+  resendCount: number;
+  resendCooldownExpiry: Date | null;
 }
 
 // User Schema for mongodb
@@ -45,11 +49,24 @@ const UserSchema: Schema<User> = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  userWallet: {
+    type: Number,
+    default: 0,
+  },
   isAcceptingMessages: {
     type: Boolean,
     default: true,
   },
   messages: [MessageSchema],
+  // ⭐ NEW FIELDS
+  resendCount: {
+    type: Number,
+    default: 0,
+  },
+  resendCooldownExpiry: {
+    type: Date,
+    default: null,
+  }
 });
 
 // Check new data base creation and connect alreay data base
