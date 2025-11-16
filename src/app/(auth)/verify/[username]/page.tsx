@@ -105,17 +105,26 @@ export default function VerifyAccount() {
     }
   }
 
-  const cooldownText = cooldownUntil ? (() => {
-    const diff = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000));
-    const m = Math.floor(diff / 60);
-    const s = diff % 60;
-    return `${m}m ${s}s`;
-  })() : null;
+  const cooldownText = cooldownUntil
+    ? (() => {
+        const diff = Math.max(
+          0,
+          Math.ceil((cooldownUntil - Date.now()) / 1000)
+        );
+        const m = Math.floor(diff / 60);
+        const s = diff % 60;
+        return `${m}m ${s}s`;
+      })()
+    : null;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#f7f7f8] px-4">
-      <div className="w-full max-w-md bg-white border rounded-lg px-8 py-10 shadow">
-        <h1 className="text-2xl font-semibold mb-2">Verify your account</h1>
+      <div className="w-full max-w-md bg-white border rounded-lg px-8 py-12 shadow">
+        <div className="flex justify-center mb-4">
+          <span className="text-blue-500 text-4xl">📧</span>
+        </div>
+
+        <h1 className="text-2xl font-semibold mb-4">Verify OTP</h1>
         <p className="text-sm text-muted-foreground mb-6">
           Enter the 6-digit code we sent to <strong>{identifier}</strong>. The
           code expires in <strong>15 minutes</strong>.
@@ -127,31 +136,48 @@ export default function VerifyAccount() {
               name="code"
               control={form.control}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Verification code</FormLabel>
-                  <InputOTP maxLength={6} value={field.value} onChange={field.onChange}>
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                    </InputOTPGroup>
-                    <InputOTPSeparator />
-                    <InputOTPGroup>
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
+                <FormItem className="flex flex-col items-center w-full">
+                  <FormLabel className="text-sm font-semibold self-start">
+                    Verification Code
+                  </FormLabel>
+
+                  <div className="flex justify-center w-full">
+                    <InputOTP
+                      maxLength={6}
+                      value={field.value}
+                      onChange={field.onChange}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+
+                      <InputOTPSeparator />
+
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="w-full">
-              Verify
-            </Button>
+            <div className="flex justify-center w-full mt-4">
+              <Button
+                type="submit"
+                className="w-full max-w-sm bg-[#f7ca00] hover:bg-[#e6b800] text-black font-medium border border-[#a88734] rounded-md"
+              >
+                Verify
+              </Button>
+            </div>
 
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-center text-sm">
               <button
                 type="button"
                 onClick={handleResend}
@@ -161,11 +187,17 @@ export default function VerifyAccount() {
                 {cooldownUntil
                   ? `Try again in ${cooldownText}`
                   : timer > 0
-                  ? `Resend in ${Math.floor(timer / 60)}m ${timer % 60}s`
-                  : "Resend code"}
+                    ? `Resend in ${Math.floor(timer / 60)}m ${timer % 60}s`
+                    : "Resend code"}
               </button>
+            </div>
+            <div className="w-full flex justify-center my-2">
+  <div className="w-40 border-t border-gray-200"></div>
+</div>
 
-              <div className="text-xs text-muted-foreground">🔒 Secure</div>
+
+            <div className="text-xs text-muted-foreground flex items-center justify-center">
+              🔒 Secure
             </div>
           </form>
         </Form>
