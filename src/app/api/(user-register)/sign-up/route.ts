@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import UserModel from "@/model/User.model";
 import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
+import OtpVerificationModel from "@/model/OtpVerification.model";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
 
     // generate plain OTP to send and then store hashed
     const plainOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const hashOtp = await bcrypt.hash(password, 10);
 
     if (existingByEmail) {
       if (existingByEmail.isVerified) {
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
       // update existing unverified user
       existingByEmail.username = username;
       existingByEmail.password = hashedPassword;
-      await existingByEmail.setOTP(plainOtp);
+      await existingByEmail.setOTP(hashOtp);
       // send email
       const emailResp = await sendVerificationEmail(email, username, plainOtp);
       if (!emailResp.success) {
@@ -57,7 +59,18 @@ export async function POST(request: Request) {
     });
 
     await newUser.save();
-    await newUser.setOTP(plainOtp);
+    // create fresh user
+    const newOtpVerification = new OtpVerificationModel({
+      email: newUser.email,
+      isVerified: newUser.isVerified,
+      otp: hashOtp,
+      Attempts: +1,
+      otpExpiryAt: Date.now()
+
+    });
+
+    await newOtpVerification.save();
+  
 
     const emailResp = await sendVerificationEmail(email, username, plainOtp);
     if (!emailResp.success) {

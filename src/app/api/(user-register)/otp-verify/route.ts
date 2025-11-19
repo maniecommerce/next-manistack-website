@@ -1,7 +1,7 @@
 // /src/app/api/otp-verify/route.ts
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import UserModel from "@/model/User.model";
 
 type ReqBody = {
   username?: string;

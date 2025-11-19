@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
-import UserModel from "@/model/User";
+import UserModel from "@/model/User.model";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
 // Max resend allowed before cooldown
