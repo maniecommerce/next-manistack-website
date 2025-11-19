@@ -9,6 +9,7 @@ import axios from "axios";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
+
 import { signUpSchema } from "@/schemas/signUpSchema";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -37,47 +38,37 @@ export default function SignUp() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    if (!captchaToken) {
-      toast.error("Please verify you are not a robot ❗");
-      return;
-    }
+const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+  if (!captchaToken) {
+    toast.error("Please verify you are not a robot ❗");
+    return;
+  }
 
-    setIsSubmitting(true);
-    try {
-      const verifyCaptcha = await fetch("/api/verify-captcha", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: captchaToken }),
-      });
+  setIsSubmitting(true);
 
-      const captchaRes = await verifyCaptcha.json();
-      if (!captchaRes.success) {
-        toast.error("Captcha failed. Try again ❗");
-        return;
-      }
+  try {
+    const res = await axios.post("/api/sign-up", {
+      ...data,
+      recaptchaToken: captchaToken,
+    });
 
-      const res = await axios.post("/api/sign-up", data);
-      toast.success(res.data.message);
-      router.push(`/verify/${data.username}`);
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Sign‑up failed ❗");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    toast.success(res.data.message);
+    router.push(`/verify/${data.username}`);
+
+  } catch (err: any) {
+    toast.error(err.response?.data?.message || "Sign-up failed ❗");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#fafafa] py-6 px-4">
       <div className="w-full max-w-sm border border-gray-300 bg-white rounded-md p-6 shadow-sm">
         {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <img
-            src="./e_commerce.svg"
-            alt="amazon logo"
-            className="h-9 bg-whiate"
-          />
-        </div>
+         {/* <div className="flex justify-center mb-6">
+          <img src="./e_commerce.svg" alt="amazon logo" className="h-9 bg-whiate" />
+        </div> */}
 
         <h2 className="text-xl font-semibold mb-4">Create account</h2>
 
@@ -90,14 +81,12 @@ export default function SignUp() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Your name</FormLabel>
-                  <Input
-                    {...field}
-                    className="rounded-sm border-gray-400 pr-10 h-10 "
-                  />
+                  <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 " />
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             {/* Email */}
             <FormField
               name="email"
@@ -105,45 +94,36 @@ export default function SignUp() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <Input
-                    {...field}
-                    className="rounded-sm border-gray-400 pr-10 h-10 "
-                  />
+                  <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 " />
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             {/* Password */}
             <FormField
               name="password"
               control={form.control}
               render={({ field }) => (
                 <FormItem className="relative">
-                  <FormLabel className="text-sm font-medium">
-                    Password
-                  </FormLabel>
-
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      type={showPassword ? "text" : "password"}
-                      className="rounded-sm border-gray-400 pr-10 h-10"
-                    />
-
-                    {/* 🔥 FIX: ICON WILL NOT MOVE ANYMORE */}
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-
+                  <FormLabel className="text-sm font-medium">Password</FormLabel>
+                  <Input
+                    {...field}
+                    type={showPassword ? "text" : "password"}
+                    className="rounded-sm  pr-10 border-gray-400  h-10 "
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 bottom-2.5 text-gray-500"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             Recaptcha
             <div className="flex justify-center ">
               <ReCAPTCHA
@@ -151,6 +131,7 @@ export default function SignUp() {
                 onChange={(token) => setCaptchaToken(token)}
               />
             </div>
+
             {/* Submit */}
             <Button
               type="submit"
@@ -159,8 +140,7 @@ export default function SignUp() {
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="animate-spin w-4 h-4 mr-2" /> Creating
-                  account…
+                  <Loader2 className="animate-spin w-4 h-4 mr-2" /> Creating account…
                 </>
               ) : (
                 "Continue"
@@ -170,8 +150,7 @@ export default function SignUp() {
         </Form>
 
         <p className="text-xs text-gray-600 mt-4">
-          By creating an account, you agree to our Conditions of Use & Privacy
-          Notice.
+          By creating an account, you agree to our Conditions of Use & Privacy Notice.
         </p>
 
         <div className="border-t my-4"></div>
