@@ -9,7 +9,6 @@ import axios from "axios";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
-
 import { signUpSchema } from "@/schemas/signUpSchema";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
