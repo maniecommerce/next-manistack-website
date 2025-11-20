@@ -20,12 +20,12 @@ export async function POST(request: Request) {
     const recaptchaValid = await verifyRecaptcha(recaptchaToken);
     if (!recaptchaValid) return ApiError("reCAPTCHA verification failed", 400);
 
-    const existingVerifiedUserByUsername = await UserModel.findOne({
-      username,
+    const existingVerifiedUser = await UserModel.findOne({
+      email,
       isVerified: true,
     });
 
-    if (existingVerifiedUserByUsername) {
+    if (existingVerifiedUser) {
       return ApiError("Username is already taken", 400)
     }
 
