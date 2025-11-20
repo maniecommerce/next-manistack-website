@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, {AxiosError}from "axios";
+import axios, { AxiosError } from "axios";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -32,26 +32,26 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const debounced = useDebounceCallback(setEmail,900)
+  const debounced = useDebounceCallback(setEmail, 900)
 
-  
+
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      username: "",
+      fullName: "",
       email: "",
       password: "",
     },
   });
 
-  useEffect(()=>{
-    const checkEmailUnique = async() => {
-      if(email){
+  useEffect(() => {
+    const checkEmailUnique = async () => {
+      if (email) {
         setIsCheckingEmail(true)
         setEmailMessage("")
         try {
-          const response =await axios.get(`/api/check-email-unique?email=${email}`)
+          const response = await axios.get(`/api/check-email-unique?email=${email}`)
           let message = response.data.message
           setEmailMessage(message)
         } catch (error) {
@@ -59,7 +59,7 @@ export default function SignUp() {
           setEmailMessage(
             axiosError.response?.data.message ?? "Error checking email"
           )
-        }finally {
+        } finally {
           setIsCheckingEmail(false)
         }
 
@@ -67,38 +67,38 @@ export default function SignUp() {
     }
     checkEmailUnique()
 
-  },[email])
+  }, [email])
 
 
-const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-  if (!captchaToken) {
-    toast.error("Please verify you are not a robot ❗");
-    return;
-  }
+  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+    if (!captchaToken) {
+      toast.error("Please verify you are not a robot ❗");
+      return;
+    }
 
-  setIsSubmitting(true);
+    setIsSubmitting(true);
 
-  try {
-    const res = await axios.post<ApiResponse>("/api/sign-up", {
-      ...data,
-      recaptchaToken: captchaToken,
-    });
+    try {
+      const res = await axios.post<ApiResponse>("/api/sign-up", {
+        ...data,
+        recaptchaToken: captchaToken,
+      });
 
-    toast.success(res.data.message);
-    router.push(`/verify/${data.username}`);
+      toast.success(res.data.message);
+      router.push(`/verify/${data.fullName}`);
 
-  } catch (err: any) {
-    toast.error(err.response?.data?.message || "Sign-up failed ❗");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Sign-up failed ❗");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#fafafa] py-6 px-4">
       <div className="w-full max-w-sm border border-gray-300 bg-white rounded-md p-6 shadow-sm">
         {/* Logo */}
-         {/* <div className="flex justify-center mb-6">
+        {/* <div className="flex justify-center mb-6">
           <img src="./e_commerce.svg" alt="amazon logo" className="h-9 bg-whiate" />
         </div> */}
 
@@ -108,7 +108,7 @@ const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Username */}
             <FormField
-              name="username"
+              name="fullName"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -127,23 +127,23 @@ const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 " 
-                  placeholder="email"
-                  onChange={(e) =>{
-                    field.onChange(e)
-                    debounced(e.target.value)
-                  }}
-                  
-                  
-                  />
-                 
+                    <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 "
+                      placeholder="email"
+                      onChange={(e) => {
+                        field.onChange(e)
+                        debounced(e.target.value)
+                      }}
+
+
+                    />
+
 
                   </FormControl>
-                   {isCheckingEmail && <Loader2 className="animate-spin"/>}
-                   <p className={`text-sm ${emailMessage === "Email is unique" ? 'text-green-500' : 'text-red-500'}`}>
-                     {emailMessage}
-                   </p>
-               
+                  {isCheckingEmail && <Loader2 className="animate-spin" />}
+                  <p className={`text-sm ${emailMessage === "Email is unique" ? 'text-green-500' : 'text-red-500'}`}>
+                    {emailMessage}
+                  </p>
+
                   <FormMessage />
                 </FormItem>
               )}

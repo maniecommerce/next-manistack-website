@@ -28,8 +28,8 @@ type FormValues = z.infer<typeof verifySchema>;
 
 export default function VerifyAccount() {
   const router = useRouter();
-  const params = useParams<{ username: string }>();
-  const identifier = params?.username ?? "";
+  const params = useParams<{ email: string }>();
+  const identifier = params?.email ?? "";
 
   const [resending, setResending] = useState(false);
   const [timer, setTimer] = useState(0); // seconds
@@ -68,7 +68,7 @@ export default function VerifyAccount() {
   async function onSubmit(data: FormValues) {
     try {
       const res = await axios.post("/api/otp-verify", {
-        username: identifier,
+        email: identifier,
         code: data.code,
       });
       toast.success(res.data.message || "Verified");

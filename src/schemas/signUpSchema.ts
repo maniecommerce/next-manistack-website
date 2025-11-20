@@ -13,7 +13,7 @@ export const emailValidation = z
     .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email address");
 
 export const signUpSchema = z.object({
-  username: usernameValidation,
+  fullName: usernameValidation,
   email: emailValidation,
   password: z
     .string()

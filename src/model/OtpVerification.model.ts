@@ -18,7 +18,7 @@ const OtpVerificationSchema: Schema<IOtpVerification> = new mongoose.Schema(
     },
     isVerified: { type: Boolean, default: false },
 
-    otp: { type: String, default: null,expires: 60 },
+    otp: { type: String, default: null },
     otpExpiryAt: { type: Date, default: Date.now, index: true, expires: 900 },
     Attempts: { type: Number, default: 0 },
   },

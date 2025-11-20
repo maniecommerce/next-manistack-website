@@ -1,110 +1,67 @@
-// /src/app/api/otp-verify/route.ts
-import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
+import IdentifierModel from "@/model/Identifier.model";
 import UserModel from "@/model/User.model";
-
-type ReqBody = {
-  username?: string;
-  email?: string;
-  code?: string;
-};
+import { ApiError, ApiSuccess } from "@/types/ApiResponse";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const body: ReqBody = await request.json();
-    const identifier = (body.username || body.email || "").trim();
-    const code = (body.code || "").trim();
+    const { email, code } = await request.json();
+    const decodedEmail = decodeURIComponent(email);
 
-    if (!identifier || !code) {
-      return NextResponse.json(
-        { success: false, message: "Missing fields" },
-        { status: 400 }
-      );
-    }
-
-    const user = await UserModel.findOne({
-      $or: [{ username: identifier }, { email: identifier }],
-    });
+    // 1. Identifier table me user dhoondo
+    const user = await IdentifierModel.findOne({ email: decodedEmail });
+    console.log(user)
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
+      return ApiError(
+        "Verification code expired. Please sign up again.",
+        400
       );
     }
 
-    if (user.isVerified) {
-      return NextResponse.json(
-        { success: false, message: "Already verified" },
-        { status: 400 }
-      );
+    // 2. OTP verify karo (OTP hashed hoga isliye compare)
+    const isCodeValid = await bcrypt.compare(code, user.verifyCode);
+
+    if (!isCodeValid) {
+      return ApiError("Invalid OTP", 400);
     }
 
-    // 🔥 Runs OTP verification logic (expiry, wrong-attempts, cooldown)
-    const res = await user.verifyOTP(code);
+    // 3. Check if user already verified
+    const alreadyExists = await UserModel.findOne({
+      email: decodedEmail,
+      isVerified: true,
+    });
 
-    if (res.ok) {
-      return NextResponse.json(
-        { success: true, message: "Account verified successfully" },
-        { status: 200 }
-      );
+    if (alreadyExists) {
+      return ApiError("User already verified", 400);
     }
 
-    // ❌ OTP Expired
-    if (res.reason === "expired") {
-      return NextResponse.json(
-        { success: false, message: "OTP expired. Request a new code." },
-        { status: 400 }
-      );
-    }
+    // 4. UserModel me save karo
+    const newUser = new UserModel({
+      fullName: user.fullName,
+      email: user.email,
+      password: user.password,
+      isVerified: true,
+      userWallet: 0,
+      isAcceptingMessages: true,
+      messages: [],
+    });
 
-    // 🔒 Too many wrong attempts → Cooldown active
-    if (res.reason === "locked") {
-      const minutesLeft = user.otpCooldownExpiry
-        ? Math.ceil(
-            (user.otpCooldownExpiry.getTime() - Date.now()) / 60000
-          )
-        : 45;
+    await newUser.save();
 
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Too many wrong attempts. Try again in ${minutesLeft} minutes.`,
-          cooldown: true,
-          cooldownMinutes: minutesLeft,
-        },
-        { status: 429 }
-      );
-    }
+    // 5. Identifier temporary entry delete kar do
+    await IdentifierModel.deleteOne({ email: decodedEmail });
 
-    // ❌ Invalid Code
-    if (res.reason === "invalid") {
-      return NextResponse.json(
-        { success: false, message: "Invalid code. Please try again." },
-        { status: 400 }
-      );
-    }
+    return ApiSuccess("User verified successfully", {
+      email: newUser.email,
+      fullName: newUser.fullName,
+    });
 
-    // ❌ No OTP Found
-    if (res.reason === "no_otp") {
-      return NextResponse.json(
-        { success: false, message: "No OTP found. Request a code first." },
-        { status: 400 }
-      );
-    }
-
-    // Fallback
-    return NextResponse.json(
-      { success: false, message: "Verification failed" },
-      { status: 400 }
-    );
-  } catch (err) {
-    console.error("verify error:", err);
-    return NextResponse.json(
-      { success: false, message: "Server error" },
-      { status: 500 }
-    );
+  } catch (error) {
+    console.log("Error verifying user", error);
+    return ApiError("Server error", 500);
   }
 }
