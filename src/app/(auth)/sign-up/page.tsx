@@ -85,7 +85,7 @@ export default function SignUp() {
       });
 
       toast.success(res.data.message);
-      router.push(`/verify/${data.fullName}`);
+      router.push(`/verify/${data.email}`);
 
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Sign-up failed ❗");
