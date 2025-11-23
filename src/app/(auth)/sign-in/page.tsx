@@ -1,9 +1,18 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner";
+
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+import { signInSchema } from "@/schemas/signInSchema";
+
+/* UI Components */
 import {
   Form,
   FormField,
@@ -13,17 +22,21 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { signInSchema } from "@/schemas/signInSchema";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 
-export default function SignInForm() {
+/* Casino Image */
+const MOODBOARD =
+  "/mnt/data/A_compilation_of_ten_casino_games_with_professiona.png";
+
+export default function LoginProUI() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
 
+  /* Password Show-Hide */
+  const [showPass, setShowPass] = useState(false);
+
+  /* Separate states for password + identifier (optional, but you asked for show/hide style input) */
+  const [password, setPassword] = useState("");
+
+  /* React Hook Form */
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -32,88 +45,114 @@ export default function SignInForm() {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+  /* Handle Login */
+  const onSubmit = async () => {
+    const data = {
+      identifier: form.getValues("identifier"),
+      password: password,
+    };
+
     const result = await signIn("credentials", {
       redirect: false,
-      identifier: data.identifier,
-      password: data.password,
+      ...data,
     });
 
     if (result?.error) {
-      toast.error("Incorrect email or password");
+      toast.error("Incorrect email or password ❌");
+      return;
     }
 
-    if (result?.url) {
-      router.replace("/");
-      toast.success("Signed in successfully");
-    }
+    toast.success("Login successful 🎉");
+    router.replace("/");
   };
 
   return (
-    <div className="min-h-screen bg-[#EAEDED] flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-white border rounded-md shadow-sm p-6">
-        <div className="flex justify-center mb-6">
-          <img src="./e_commerce.svg" alt="amazon logo" className="h-9 bg-whiate" />
+    <div className="min-h-screen bg-gradient-to-b from-[#031427] to-[#061827] text-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg bg-white/5 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10">
+
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <img src={MOODBOARD} alt="brand" className="w-12 h-12 rounded-md object-cover" />
+          <div>
+            <div className="text-sm text-gray-300">Welcome Back</div>
+            <div className="text-xl font-semibold">Login to your account</div>
+          </div>
         </div>
 
-        <h1 className="text-2xl font-semibold text-gray-800 mb-4">Sign-In</h1>
-
+        {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+
+            {/* Identifier */}
             <FormField
               name="identifier"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-medium">Email or Mobile Number</FormLabel>
-                  <Input {...field} className="rounded-sm border-gray-400" />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="relative">
-                  <FormLabel className="text-sm font-medium">Password</FormLabel>
+                  <FormLabel className="text-gray-300">Email or Username</FormLabel>
                   <Input
                     {...field}
-                    type={showPassword ? "text" : "password"}
-                    className="rounded-sm border-gray-400 pr-10"
+                    placeholder="you@example.com"
+                    className="bg-black/20 border border-white/10 px-4 py-6 rounded-xl"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 bottom-2 text-gray-500"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button className="w-full rounded-sm bg-[#F7CA00] hover:bg-[#e2b600] text-black font-medium" type="submit">
-              Continue
+            {/* Password (your custom show/hide component) */}
+            <div className="mb-4">
+              <label className="text-sm text-gray-300 mb-1 block">Password</label>
+
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    form.setValue("password", e.target.value);
+                  }}
+                  className="w-full px-4 py-3 rounded-xl bg-black/20 border border-white/10 
+                             focus:border-teal-300 focus:ring-2 focus:ring-teal-400 outline-none
+                             text-white placeholder-gray-400"
+                  placeholder="••••••••"
+                />
+
+                {/* Show / Hide Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 
+                             text-gray-300 hover:text-teal-300 text-sm transition"
+                >
+                  {showPass ? "Hide" : "Show"}
+                </button>
+           
+              </div>
+                   <div className="text-left text-gray-400 text-sm mt-1 hover:text-teal-300 cursor-pointer">
+          Forgot password?
+        </div>
+            </div>
+             {/* Forgot */}
+        
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full py-6 bg-gradient-to-r from-teal-300 to-cyan-300 text-[#042322] text-lg rounded-xl font-bold"
+            >
+              Login
             </Button>
           </form>
         </Form>
 
-        <div className="text-xs text-blue-600 hover:underline mt-3 cursor-pointer">Forgot password?</div>
-
-        <div className="flex items-center my-5">
-          <div className="flex-1 h-px bg-gray-300"></div>
-          <span className="px-2 text-xs text-gray-500">New to Manistack?</span>
-          <div className="flex-1 h-px bg-gray-300"></div>
+     {/* Signup Button */}
+    <div className="text-center mt-6 text-gray-400 text-sm">
+          Create a new account?{" "}
+          <Link href="/sign-up" className="text-teal-300 hover:underline">
+            Sign up
+          </Link>
         </div>
-
-        <Link href="/sign-up">
-          <Button className="w-full rounded-sm bg-gray-200 text-black hover:bg-gray-300 text-sm py-2">
-            Create your Manistack account
-          </Button>
-        </Link>
       </div>
     </div>
   );

@@ -18,7 +18,8 @@ type FormValues = z.infer<typeof verifySchema>;
 export default function OTPVerifyProGUI() {
   const router = useRouter();
   const params = useParams<{ email: string }>();
-  const email = params?.email ?? "";
+  const email = decodeURIComponent(params?.email ?? "");
+
 
   const { control } = useForm<FormValues>({
     resolver: zodResolver(verifySchema),

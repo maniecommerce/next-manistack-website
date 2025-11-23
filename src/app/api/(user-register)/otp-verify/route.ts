@@ -3,6 +3,7 @@ import IdentifierModel from "@/model/Identifier.model";
 import UserModel from "@/model/User.model";
 import { ApiError, ApiSuccess } from "@/types/ApiResponse";
 import bcrypt from "bcryptjs";
+import { verifyRecaptcha } from "@/helpers/verifyRecaptcha";
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
 
     // 1. Identifier table me user dhoondo
     const user = await IdentifierModel.findOne({ email: decodedEmail });
-    console.log(user)
+   
 
     if (!user) {
       return ApiError(
