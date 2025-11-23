@@ -1,17 +1,23 @@
+
+
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
+
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import ReCAPTCHA from "react-google-recaptcha";
-import { useDebounceCallback } from 'usehooks-ts'
-import { signUpSchema } from "@/schemas/signUpSchema";
+import { useDebounceCallback } from "usehooks-ts";
 import * as z from "zod";
+import { signUpSchema } from "@/schemas/signUpSchema";
+
+/* ===== shadcn components ===== */
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,98 +28,124 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ApiResponse } from "@/types/ApiResponse";
+/* ============================== */
+
+
+type SignUpData = z.infer<typeof signUpSchema>;
+/* -------------------------------- */
 
 export default function SignUp() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+
+  const [emailCheck, setEmailCheck] = useState("");
   const [emailMessage, setEmailMessage] = useState("");
-  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const debounced = useDebounceCallback(setEmail, 900)
+  const [submitting, setSubmitting] = useState(false);
 
+  const MOODBOARD = "/mnt/data/A_compilation_of_ten_casino_games_with_professiona.png";
 
-
-  const form = useForm<z.infer<typeof signUpSchema>>({
+  /* React Hook Form */
+  const form = useForm<SignUpData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
       fullName: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
+  const debounced = useDebounceCallback((v: string) => setEmailCheck(v), 500);
+
+  /* ---------- Email Uniqueness Check ---------- */
   useEffect(() => {
-    const checkEmailUnique = async () => {
-      if (email) {
-        setIsCheckingEmail(true)
-        setEmailMessage("")
-        try {
-          const response = await axios.get(`/api/check-email-unique?email=${email}`)
-          let message = response.data.message
-          setEmailMessage(message)
-        } catch (error) {
-          const axiosError = error as AxiosError<ApiResponse>;
-          setEmailMessage(
-            axiosError.response?.data.message ?? "Error checking email"
-          )
-        } finally {
-          setIsCheckingEmail(false)
-        }
+    let ignore = false;
 
+    const fetchCheck = async () => {
+      if (!emailCheck) {
+        setEmailMessage("");
+        return;
       }
-    }
-    checkEmailUnique()
 
-  }, [email])
+      setCheckingEmail(true);
+      setEmailMessage("");
 
+      try {
+        const res = await axios.get(`/api/check-email-unique?email=${emailCheck}`);
+        if (!ignore) setEmailMessage(res.data.message);
+      } catch (err) {
+        const e = err as AxiosError<{ message?: string }>;
+        if (!ignore) {
+          setEmailMessage(e.response?.data?.message || "Email check failed");
+        }
+      } finally {
+        if (!ignore) setCheckingEmail(false);
+      }
+    };
 
-  const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
+    fetchCheck();
+    return () => {
+      ignore = true;
+    };
+  }, [emailCheck]);
+
+  /* ---------- Submit ---------- */
+  const onSubmit = async (data: SignUpData) => {
     if (!captchaToken) {
-      toast.error("Please verify you are not a robot ❗");
+      toast.error("Please complete the captcha ❗");
       return;
     }
 
-    setIsSubmitting(true);
-
+    setSubmitting(true);
     try {
-      const res = await axios.post<ApiResponse>("/api/sign-up", {
+      const res = await axios.post("/api/sign-up", {
         ...data,
         recaptchaToken: captchaToken,
       });
 
-      toast.success(res.data.message);
-      router.push(`/verify/${data.email}`);
-
+      toast.success(res.data.message || "Account created successfully!");
+      router.push(`/verify/${encodeURIComponent(data.email)}`);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Sign-up failed ❗");
+      toast.error(err.response?.data?.message || "Signup failed");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#fafafa] py-6 px-4">
-      <div className="w-full max-w-sm border border-gray-300 bg-white rounded-md p-6 shadow-sm">
-        {/* Logo */}
-        {/* <div className="flex justify-center mb-6">
-          <img src="./e_commerce.svg" alt="amazon logo" className="h-9 bg-whiate" />
-        </div> */}
+    <div className="min-h-screen bg-gradient-to-b from-[#031427] to-[#061827] text-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg bg-white/5 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10">
 
-        <h2 className="text-xl font-semibold mb-4">Create account</h2>
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <img src={MOODBOARD} alt="brand" className="w-12 h-12 rounded-md object-cover" />
+          <div>
+            <div className="text-sm text-gray-300">Create Account</div>
+            <div className="text-xl font-semibold">Sign up to get started</div>
+          </div>
+        </div>
 
+        {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
             {/* Username */}
             <FormField
               name="fullName"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Your name</FormLabel>
-                  <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 " />
+                  <FormLabel className="text-gray-300">Full Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Your username"
+                      className="bg-black/20 border border-white/10 px-4 py-6 rounded-xl"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -125,24 +157,34 @@ export default function SignUp() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-gray-300">Email</FormLabel>
                   <FormControl>
-                    <Input {...field} className="rounded-sm border-gray-400 pr-10 h-10 "
-                      placeholder="email"
-                      onChange={(e) => {
-                        field.onChange(e)
-                        debounced(e.target.value)
-                      }}
-
-
-                    />
-
-
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        placeholder="you@example.com"
+                        onChange={(e) => {
+                          field.onChange(e);
+                          debounced(e.target.value);
+                        }}
+                        className="bg-black/20 border border-white/10 px-4 py-6 rounded-xl pr-10"
+                      />
+                      {checkingEmail && (
+                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 animate-spin" />
+                      )}
+                    </div>
                   </FormControl>
-                  {isCheckingEmail && <Loader2 className="animate-spin" />}
-                  <p className={`text-sm ${emailMessage === "Email is unique" ? 'text-green-500' : 'text-red-500'}`}>
-                    {emailMessage}
-                  </p>
+
+                  {emailCheck && (
+                    <p
+                      className={`text-sm mt-1 ${emailMessage === "Email is unique"
+                          ? "text-green-300"
+                          : "text-rose-300"
+                        }`}
+                    >
+                      {emailMessage}
+                    </p>
+                  )}
 
                   <FormMessage />
                 </FormItem>
@@ -154,61 +196,93 @@ export default function SignUp() {
               name="password"
               control={form.control}
               render={({ field }) => (
-                <FormItem className="relative">
-                  <FormLabel className="text-sm font-medium">Password</FormLabel>
-                  <Input
-                    {...field}
-                    type={showPassword ? "text" : "password"}
-                    className="rounded-sm  pr-10 border-gray-400  h-10 "
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2 bottom-2.5 text-gray-500"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
+                <FormItem>
+                  <FormLabel className="text-sm text-gray-300 mb-1 block">
+                    Password
+                  </FormLabel>
+
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        className="w-full px-4 py-6 rounded-xl bg-black/20 border border-white/10 
+                       focus:border-teal-300 focus:ring-2 focus:ring-teal-400 outline-none pr-16"
+                      />
+
+                      {/* TEXT BUTTON (Show / Hide) */}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 
+                       text-gray-300 text-sm font-medium"
+                      >
+                        {showPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </FormControl>
+
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            Recaptcha
-            <div className="flex justify-center ">
+
+            {/* Confirm Password */}
+            <FormField
+              name="confirmPassword"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-300">Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      className="bg-black/20 border border-white/10 px-4 py-6 rounded-xl"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* reCAPTCHA */}
+            <div className="flex justify-center">
               <ReCAPTCHA
                 sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                onChange={(token) => setCaptchaToken(token)}
+                onChange={(t) => setCaptchaToken(t)}
               />
             </div>
 
             {/* Submit */}
             <Button
               type="submit"
-              className="w-full bg-[#ffca28] hover:bg-[#fbbf24] text-black font-medium"
-              disabled={isSubmitting}
+              disabled={submitting}
+              className="w-full py-6 bg-gradient-to-r from-teal-300 to-cyan-300 text-[#042322] text-lg rounded-xl font-bold"
             >
-              {isSubmitting ? (
+              {submitting ? (
                 <>
-                  <Loader2 className="animate-spin w-4 h-4 mr-2" /> Creating account…
+                  <Loader2 className="animate-spin w-4 h-4 mr-2 inline" />
+                  Creating account...
                 </>
               ) : (
-                "Continue"
+                "Sign Up"
               )}
             </Button>
+
           </form>
         </Form>
 
-        <p className="text-xs text-gray-600 mt-4">
-          By creating an account, you agree to our Conditions of Use & Privacy Notice.
-        </p>
-
-        <div className="border-t my-4"></div>
-
-        <Link href="/sign-in" className="block">
-          <Button className="w-full bg-gray-200 hover:bg-gray-300 text-black">
-            Already have an account? Sign in
-          </Button>
-        </Link>
+        {/* Footer */}
+        <div className="text-center mt-6 text-gray-400 text-sm">
+          Already have an account?{" "}
+          <Link href="/sign-in" className="text-teal-300 hover:underline">
+            Login
+          </Link>
+        </div>
       </div>
     </div>
   );
