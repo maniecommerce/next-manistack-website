@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -10,9 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { AxiosError } from "axios";
 
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import ReCAPTCHA from "react-google-recaptcha";
 import { useDebounceCallback } from "usehooks-ts";
 import * as z from "zod";
 import { signUpSchema } from "@/schemas/signUpSchema";
@@ -30,9 +27,15 @@ import {
 import { Input } from "@/components/ui/input";
 /* ============================== */
 
-
 type SignUpData = z.infer<typeof signUpSchema>;
-/* -------------------------------- */
+
+/* -------------------- */
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
 
 export default function SignUp() {
   const router = useRouter();
@@ -42,12 +45,11 @@ export default function SignUp() {
   const [checkingEmail, setCheckingEmail] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const MOODBOARD = "/mnt/data/A_compilation_of_ten_casino_games_with_professiona.png";
+  const MOODBOARD =
+    "/mnt/data/A_compilation_of_ten_casino_games_with_professiona.png";
 
-  /* React Hook Form */
   const form = useForm<SignUpData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -60,7 +62,7 @@ export default function SignUp() {
 
   const debounced = useDebounceCallback((v: string) => setEmailCheck(v), 500);
 
-  /* ---------- Email Uniqueness Check ---------- */
+  /* Email uniqueness check */
   useEffect(() => {
     let ignore = false;
 
@@ -74,7 +76,9 @@ export default function SignUp() {
       setEmailMessage("");
 
       try {
-        const res = await axios.get(`/api/check-email-unique?email=${emailCheck}`);
+        const res = await axios.get(
+          `/api/check-email-unique?email=${emailCheck}`
+        );
         if (!ignore) setEmailMessage(res.data.message);
       } catch (err) {
         const e = err as AxiosError<{ message?: string }>;
@@ -92,18 +96,25 @@ export default function SignUp() {
     };
   }, [emailCheck]);
 
-  /* ---------- Submit ---------- */
+  /* Form submit with reCAPTCHA v3 */
   const onSubmit = async (data: SignUpData) => {
-    if (!captchaToken) {
-      toast.error("Please complete the captcha ❗");
+    if (!window.grecaptcha) {
+      toast.error("reCAPTCHA not loaded. Try again later.");
       return;
     }
 
     setSubmitting(true);
+
     try {
+      // ✅ Generate v3 token
+      const token = await window.grecaptcha.execute(
+        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!,
+        { action: "signup" }
+      );
+
       const res = await axios.post("/api/sign-up", {
         ...data,
-        recaptchaToken: captchaToken,
+        recaptchaToken: token,
       });
 
       toast.success(res.data.message || "Account created successfully!");
@@ -118,10 +129,13 @@ export default function SignUp() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#031427] to-[#061827] text-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-lg bg-white/5 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/10">
-
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <img src={MOODBOARD} alt="brand" className="w-12 h-12 rounded-md object-cover" />
+          <img
+            src={MOODBOARD}
+            alt="brand"
+            className="w-12 h-12 rounded-md object-cover"
+          />
           <div>
             <div className="text-sm text-gray-300">Create Account</div>
             <div className="text-xl font-semibold">Sign up to get started</div>
@@ -131,8 +145,7 @@ export default function SignUp() {
         {/* Form */}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
-            {/* Username */}
+            {/* Full Name */}
             <FormField
               name="fullName"
               control={form.control}
@@ -174,18 +187,17 @@ export default function SignUp() {
                       )}
                     </div>
                   </FormControl>
-
                   {emailCheck && (
                     <p
-                      className={`text-sm mt-1 ${emailMessage === "Email is unique"
+                      className={`text-sm mt-1 ${
+                        emailMessage === "Email is unique"
                           ? "text-green-300"
                           : "text-rose-300"
-                        }`}
+                      }`}
                     >
                       {emailMessage}
                     </p>
                   )}
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -200,34 +212,27 @@ export default function SignUp() {
                   <FormLabel className="text-sm text-gray-300 mb-1 block">
                     Password
                   </FormLabel>
-
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="w-full px-4 py-6 rounded-xl bg-black/20 border border-white/10 
-                       focus:border-teal-300 focus:ring-2 focus:ring-teal-400 outline-none pr-16"
+                        className="w-full px-4 py-6 rounded-xl bg-black/20 border border-white/10 focus:border-teal-300 focus:ring-2 focus:ring-teal-400 outline-none pr-16"
                       />
-
-                      {/* TEXT BUTTON (Show / Hide) */}
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 
-                       text-gray-300 text-sm font-medium"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm font-medium"
                       >
                         {showPassword ? "Hide" : "Show"}
                       </button>
                     </div>
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
-
 
             {/* Confirm Password */}
             <FormField
@@ -249,15 +254,7 @@ export default function SignUp() {
               )}
             />
 
-            {/* reCAPTCHA */}
-            <div className="flex justify-center">
-              <ReCAPTCHA
-                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-                onChange={(t) => setCaptchaToken(t)}
-              />
-            </div>
-
-            {/* Submit */}
+            {/* Submit Button */}
             <Button
               type="submit"
               disabled={submitting}
@@ -272,7 +269,6 @@ export default function SignUp() {
                 "Sign Up"
               )}
             </Button>
-
           </form>
         </Form>
 
