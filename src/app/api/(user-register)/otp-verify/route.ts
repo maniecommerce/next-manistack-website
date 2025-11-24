@@ -9,38 +9,63 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { email, code } = await request.json();
+    const { email, code, recaptchaToken } = await request.json();
     const decodedEmail = decodeURIComponent(email);
 
-    // 1. Identifier table me user dhoondo
-    const user = await IdentifierModel.findOne({ email: decodedEmail });
-   
+    if (!recaptchaToken) {
+      return ApiError("reCAPTCHA token missing", 400);
+    }
 
-    if (!user) {
+    // 1️⃣ Verify reCAPTCHA v3 token
+    const recaptchaResponse = await verifyRecaptcha(recaptchaToken, "signup");
+
+    if (!recaptchaResponse.success) {
+      return ApiError(`reCAPTCHA failed: ${recaptchaResponse.reason}`, 400);
+    }
+
+    // Optional: score threshold (0.5 recommended)
+    const MIN_SCORE = 0.5;
+    if ((recaptchaResponse.score ?? 0) < MIN_SCORE) {
       return ApiError(
-        "Verification code expired. Please sign up again.",
+        `reCAPTCHA score too low (${recaptchaResponse.score}). Suspicious activity detected.`,
+        403
+      );
+    }
+
+    // Optional: action validation
+    if ((recaptchaResponse as any).action !== "signup") {
+      return ApiError(
+        `Invalid reCAPTCHA action. Expected "signup" but got "${(recaptchaResponse as any).action}"`,
         400
       );
     }
 
-    // 2. OTP verify karo (OTP hashed hoga isliye compare)
-    const isCodeValid = await bcrypt.compare(code, user.verifyCode);
+    // 2️⃣ Lookup user in Identifier table
+    const user = await IdentifierModel.findOne({ email: decodedEmail });
 
+    if (!user) {
+      return ApiError(
+        "Verification code expired or invalid. Please sign up again.",
+        400
+      );
+    }
+
+    // 3️⃣ OTP verification
+    const isCodeValid = await bcrypt.compare(code, user.verifyCode);
     if (!isCodeValid) {
       return ApiError("Invalid OTP", 400);
     }
 
-    // 3. Check if user already verified
-    const alreadyExists = await UserModel.findOne({
+    // 4️⃣ Check if already verified
+    const alreadyVerified = await UserModel.findOne({
       email: decodedEmail,
       isVerified: true,
     });
-
-    if (alreadyExists) {
+    if (alreadyVerified) {
       return ApiError("User already verified", 400);
     }
 
-    // 4. UserModel me save karo
+    // 5️⃣ Save to UserModel
     const newUser = new UserModel({
       fullName: user.fullName,
       email: user.email,
@@ -50,19 +75,18 @@ export async function POST(request: Request) {
       isAcceptingMessages: true,
       messages: [],
     });
-
     await newUser.save();
 
-    // 5. Identifier temporary entry delete kar do
+    // 6️⃣ Delete temporary Identifier entry
     await IdentifierModel.deleteOne({ email: decodedEmail });
 
     return ApiSuccess("User verified successfully", {
       email: newUser.email,
       fullName: newUser.fullName,
+      recaptchaScore: recaptchaResponse.score, // optional debug info
     });
-
   } catch (error) {
-    console.log("Error verifying user", error);
+    console.error("Error verifying user", error);
     return ApiError("Server error", 500);
   }
 }
