@@ -120,3 +120,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
+
+
+/* ===== REAL ENTERPRISE BADGE ===== */
+
+.grecaptcha-badge {
+  bottom: 20px !important;
+  right: 1px !important;
+
+  transform: scale(0.85) !important;
+  transform-origin: bottom right !important;
+
+  border-radius: 10px !important;
+  background: rgba(255,255,255,0.15) !important;
+  backdrop-filter: blur(14px) !important;
+
+  box-shadow: 0 4px 18px rgba(0,0,0,0.18) !important;
+
+  padding: 2px !important;
+
+  opacity: 0.75 !important;
+  transition: all 0.25s ease !important;
+}
+
+
