@@ -32,13 +32,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Optional: verify action matches
-    if ((recaptchaResponse as any).action !== "signup") {
-      return ApiError(
-        `Invalid reCAPTCHA action. Expected "signup" but got "${(recaptchaResponse as any).action}"`,
-        400
-      );
-    }
+   
 
     // 2️⃣ Check if verified user already exists
     const existingUser = await UserModel.findOne({ email, isVerified: true });

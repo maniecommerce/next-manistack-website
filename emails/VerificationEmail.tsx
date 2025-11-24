@@ -4,7 +4,6 @@ import {
   Font,
   Preview,
   Heading,
-  Row,
   Section,
   Text,
   Button,
@@ -19,7 +18,7 @@ export default function VerificationEmail({ username, otp }: VerificationEmailPr
   return (
     <Html lang="en">
       <Head>
-        <title>Manistack Verification Code</title>
+        <title>GAMIX Verification Code</title>
 
         <Font
           fontFamily="Inter"
@@ -29,118 +28,153 @@ export default function VerificationEmail({ username, otp }: VerificationEmailPr
             format: "woff2",
           }}
           fontWeight={400}
-          fontStyle="normal"
         />
       </Head>
 
-      {/* Email Preview Line */}
-      <Preview>Your Manistack verification code is {otp}</Preview>
+      {/* Email preview text */}
+      <Preview>Your GAMIX verification code is {otp}</Preview>
 
-      {/* Main Container */}
+      {/* Background */}
       <Section
         style={{
-          maxWidth: "520px",
-          margin: "0 auto",
-          background: "#ffffff",
-          padding: "32px 28px",
-          borderRadius: "12px",
-          border: "1px solid #e5e5e5",
+          background: "linear-gradient(180deg, #0b0b12, #10101f)",
+          padding: "40px 0",
         }}
       >
-        {/* Brand Name */}
-        <Heading
-          as="h2"
-          style={{
-            textAlign: "center",
-            fontSize: "26px",
-            marginBottom: "10px",
-            fontWeight: 700,
-            color: "#333",
-          }}
-        >
-          Manistack
-        </Heading>
-
-        {/* Subtitle */}
-        <Text
-          style={{
-            textAlign: "center",
-            fontSize: "15px",
-            marginBottom: "22px",
-            color: "#555",
-          }}
-        >
-          Secure Account Verification
-        </Text>
-
-        {/* Greeting */}
-        <Text
-          style={{
-            fontSize: "16px",
-            color: "#444",
-            marginBottom: "16px",
-          }}
-        >
-          Hello <strong>{username}</strong>,
-        </Text>
-
-        {/* Message */}
-        <Text
-          style={{
-            fontSize: "15px",
-            color: "#444",
-            lineHeight: "22px",
-          }}
-        >
-          Thank you for registering with <strong>Manistack</strong>.  
-          Please use the verification code below to complete your sign-up:
-        </Text>
-
-        {/* OTP Box */}
+        {/* Main Card */}
         <Section
           style={{
-            margin: "28px 0",
-            textAlign: "center",
+            maxWidth: "520px",
+            margin: "0 auto",
+            background: "#0f1320",
+            padding: "36px 30px",
+            borderRadius: "14px",
+            border: "1px solid #1f2a38",
+            boxShadow: "0px 0px 18px rgba(45, 212, 191, 0.15)",
           }}
         >
-          <Text
+          {/* GAMIX Title */}
+          <Heading
+            as="h2"
             style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              letterSpacing: "6px",
-              padding: "12px 18px",
-              background: "#f7faff",
-              borderRadius: "10px",
-              display: "inline-block",
-              border: "1px solid #dce8ff",
-              color: "#1a73e8",
+              textAlign: "center",
+              fontSize: "30px",
+              fontWeight: 800,
+              marginBottom: "8px",
+              letterSpacing: "2px",
+              color: "#2DD4BF",
+              textShadow: "0px 0px 12px rgba(45, 212, 191, 0.45)",
             }}
           >
-            {otp}
+            GAMIX
+          </Heading>
+
+          {/* Subtitle */}
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: "15px",
+              marginBottom: "22px",
+              color: "#b5c7d9",
+            }}
+          >
+            Secure Account Verification
+          </Text>
+
+          {/* Greeting */}
+          <Text
+            style={{
+              fontSize: "16px",
+              color: "#d7e2ec",
+              marginBottom: "16px",
+            }}
+          >
+            Hello <strong style={{ color: "#2DD4BF" }}>{username}</strong>,
+          </Text>
+
+          {/* Main message */}
+          <Text
+            style={{
+              fontSize: "15px",
+              color: "#cdd7e5",
+              lineHeight: "22px",
+              marginBottom: "20px",
+            }}
+          >
+            Thank you for creating your account on <strong>GAMIX</strong>.  
+            Use the verification code below to complete your login:
+          </Text>
+
+          {/* OTP Display */}
+          <Section
+            style={{
+              textAlign: "center",
+              margin: "32px 0",
+            }}
+          >
+            <div
+              style={{
+                display: "inline-block",
+                padding: "16px 22px",
+                borderRadius: "12px",
+                fontSize: "34px",
+                fontWeight: 700,
+                letterSpacing: "8px",
+                color: "#2DD4BF",
+                background: "rgba(45, 212, 191, 0.08)",
+                border: "1px solid rgba(45, 212, 191, 0.35)",
+                boxShadow: "0 0 18px rgba(45, 212, 191, 0.35)",
+              }}
+            >
+              {otp}
+            </div>
+          </Section>
+
+          {/* Button (Same as Sign In Button from your UI) */}
+          {/* <Section style={{ textAlign: "center", marginTop: "12px" }}>
+            <Button
+              href="https://fictional-giggle-69p5r5rrw4qxh46px-3000.app.github.dev/sign-up"
+              style={{
+                padding: "12px 24px",
+                background: "#2DD4BF",
+                borderRadius: "10px",
+                color: "#0b0b12",
+                fontWeight: 600,
+                textDecoration: "none",
+                fontSize: "15px",
+                border: "1px solid #2DD4BF",
+                boxShadow: "0 0 12px rgba(45, 212, 191, 0.45)",
+              }}
+            >
+              Continue to Login
+            </Button>
+          </Section> */}
+
+          {/* Notice */}
+          <Text
+            style={{
+              marginTop: "30px",
+              fontSize: "14px",
+              color: "#9aa8b8",
+              textAlign: "center",
+              lineHeight: "22px",
+            }}
+          >
+            If you did not request this code, you can safely ignore this email.
+          </Text>
+
+          {/* Footer */}
+          <Text
+            style={{
+              marginTop: "28px",
+              textAlign: "center",
+              fontSize: "12px",
+              color: "#6b7b8f",
+            }}
+          >
+            © {new Date().getFullYear()} GAMIX. All rights reserved.
           </Text>
         </Section>
-
-        {/* Footer Text */}
-        <Text
-          style={{
-            fontSize: "14px",
-            color: "#777",
-            lineHeight: "22px",
-          }}
-        >
-          If you did not request this code, you can safely ignore this email.
-        </Text>
-
-        <Text
-          style={{
-            marginTop: "32px",
-            textAlign: "center",
-            fontSize: "13px",
-            color: "#999",
-          }}
-        >
-          © {new Date().getFullYear()} Manistack. All rights reserved.
-        </Text>
       </Section>
     </Html>
   );

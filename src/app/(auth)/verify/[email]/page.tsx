@@ -83,17 +83,8 @@ export default function OTPVerifyProGUI() {
         toast.error("reCAPTCHA not loaded. Try again later.");
         return;
       }
-      // ✅ Generate v3 token
-      const token = await window.grecaptcha.execute(
-        process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!,
-        { action: "verify" }
-      );
 
-      const res = await axios.post("/api/resend-otp", {
-        email,
-        recaptchaToken: token,
-      });
-      toast.success(res.data.message || `OTP sent to ${email}`);
+    
       setResendCount((c) => c + 1);
       const backoff = Math.min(300, 30 * Math.pow(2, resendCount));
       startCooldown(backoff);
@@ -145,26 +136,45 @@ export default function OTPVerifyProGUI() {
     focusIndex(firstEmpty === -1 ? length - 1 : firstEmpty);
   }
 
-  async function handleVerify() {
-    const code = values.join("");
-    if (code.length !== length) {
-      setMessage("Enter full 6-digit code");
-      return;
-    }
-    setLoadingVerify(true);
-    try {
-      const res = await axios.post("/api/otp-verify", { email, code });
-      toast.success(res.data.message || "Verified");
-      setStatus("verified");
-      setValues(Array.from({ length }, () => ""));
-      router.replace("/sign-in");
-    } catch (err: any) {
-      setStatus("error");
-      setMessage(err?.response?.data?.message || "Invalid code");
-    } finally {
-      setLoadingVerify(false);
-    }
+ async function handleVerify() {
+  const code = values.join("");
+
+  if (code.length !== length) {
+    setMessage("Enter full 6-digit code");
+    return;
   }
+
+  if (!window.grecaptcha) {
+    toast.error("reCAPTCHA not loaded");
+    return;
+  }
+
+  setLoadingVerify(true);
+
+  try {
+    // 🔥 Generate recaptcha token
+    const recaptchaToken = await window.grecaptcha.execute(
+      process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!,
+      { action: "verify" }
+    );
+
+    // 🔥 Now send it to backend
+    const res = await axios.post("/api/otp-verify", {
+      email,
+      code,
+      recaptchaToken,
+    });
+
+    toast.success(res.data.message || "Verified");
+    router.replace("/sign-in");
+  } catch (err: any) {
+    setStatus("error");
+    setMessage(err?.response?.data?.message || "Invalid code");
+  } finally {
+    setLoadingVerify(false);
+  }
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#031427] to-[#061827] flex items-start justify-center py-12 px-4 text-white">

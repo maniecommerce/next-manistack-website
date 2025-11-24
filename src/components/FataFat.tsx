@@ -22,13 +22,13 @@ import { MdSupervisorAccount } from "react-icons/md";
 const Home_link = [
   { name: "Fatafat", href: "/fatafat" },
   { name: "Keno", href: "/keno" },
-  { name: "Lottery", href: "/solt" },
+  { name: "Lottery", href: "/lottery" },
 ];
 const Categories_link = [
-  { name: "Ludo", href: "#" },
-  { name: "Matka", href: "#" },
-  { name: "Money Match", href: "#" },
-  { name: "Roulette", href: "" },
+  { name: "Ludo", href: "ludo" },
+  { name: "Computers", href: "#" },
+  { name: "Books", href: "#" },
+  { name: "E-commerce Fashion", href: "#" },
   { name: "Sell All Categories", href: "#" },
 ];
 const Features_link = [

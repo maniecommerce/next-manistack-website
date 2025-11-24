@@ -13,11 +13,12 @@ export async function POST(request: Request) {
     const decodedEmail = decodeURIComponent(email);
 
     if (!recaptchaToken) {
+      console.log(recaptchaToken)
       return ApiError("reCAPTCHA token missing", 400);
     }
 
     // 1️⃣ Verify reCAPTCHA v3 token
-    const recaptchaResponse = await verifyRecaptcha(recaptchaToken, "signup");
+    const recaptchaResponse = await verifyRecaptcha(recaptchaToken,"verify");
 
     if (!recaptchaResponse.success) {
       return ApiError(`reCAPTCHA failed: ${recaptchaResponse.reason}`, 400);
@@ -32,13 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Optional: action validation
-    if ((recaptchaResponse as any).action !== "signup") {
-      return ApiError(
-        `Invalid reCAPTCHA action. Expected "signup" but got "${(recaptchaResponse as any).action}"`,
-        400
-      );
-    }
+    
 
     // 2️⃣ Lookup user in Identifier table
     const user = await IdentifierModel.findOne({ email: decodedEmail });
