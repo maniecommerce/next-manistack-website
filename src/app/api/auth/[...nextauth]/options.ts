@@ -19,11 +19,13 @@ export const authOptions: NextAuthOptions = {
           const user = await UserModel.findOne({
             $or: [
               { email: credentials.identifier },
-              { username: credentials.identifier },
             ],
           });
           if (!user) {
             throw new Error('No user found with this email');
+          }
+          if (!user.fullName) {
+            throw new Error('Please verify your account before logging in');
           }
           if (!user.isVerified) {
             throw new Error('Please verify your account before logging in');
@@ -49,7 +51,7 @@ export const authOptions: NextAuthOptions = {
         token._id = user._id?.toString(); // Convert ObjectId to string
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
-        token.username = user.username;
+        token.fullName = user.fullName;
       }
       return token;
     },
@@ -58,7 +60,7 @@ export const authOptions: NextAuthOptions = {
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
-        session.user.username = token.username;
+        session.user.fullName = token.fullName;
       }
       return session;
     },
@@ -70,4 +72,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/sign-in',
   },
+  
 };
