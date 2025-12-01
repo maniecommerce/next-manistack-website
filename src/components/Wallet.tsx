@@ -10,7 +10,7 @@ export default function GamingWallet() {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.22 }}
       className="
-        relative w-full max-w-[260px] mx-auto
+        relative w-sx max-w-[260px] mx-auto
         bg-black/30 backdrop-blur-xl 
         rounded-xl p-1
         border border-[#18FFE6]/30
@@ -18,7 +18,7 @@ export default function GamingWallet() {
       "
     >
       {/* Glow Border */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#0FFFE6]/20 to-[#00A3FF]/20 blur-lg opacity-50 -z-10"></div>
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#0FFFE6]/20 to-[#00A3FF]/20 blur-lg opacity-50 -z-10 "></div>
 
       <div className="flex items-center justify-between">
         
