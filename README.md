@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+
+
+## Auth
+
+### src/model
+model folder add all user host root type data base creations new and check and connect
+
+### src/schemas
+schemas folder add all validation for my sefty data travers in validate
+
+### src/lib
+connect mongodb Atls
+resend
+
+### src/helper
+
+### src/api/sign-up
+
+## src/api/auth
