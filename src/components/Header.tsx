@@ -76,7 +76,7 @@ const navigation = {
       featured: [
         {
           name: 'Roulette',
-          href: '#',
+          href: '/roulette-casino',
           imageSrc:
             '/roulette.webp',
           imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
@@ -187,10 +187,10 @@ export default function Example() {
                             src={item.imageSrc}
                             className="aspect-square w-full rounded-lg bg-gray-100 object-cover group-hover:opacity-75"
                           />
-                          <a href={item.href} className="mt-6 block font-medium text-gray-900">
+                          <Link href={item.href} className="mt-6 block font-medium text-gray-900">
                             <span aria-hidden="true" className="absolute inset-0 z-10" />
                             {item.name}
-                          </a>
+                          </Link>
                           <p aria-hidden="true" className="mt-1">
                             Play now
                           </p>
@@ -225,9 +225,9 @@ export default function Example() {
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
               {navigation.pages.map((page) => (
                 <div key={page.name} className="flow-root">
-                  <a href={page.href} className="-m-2 block p-2 font-medium text-gray-900">
+                  <Link href={page.href} className="-m-2 block p-2 font-medium text-gray-900">
                     {page.name}
-                  </a>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -349,9 +349,9 @@ export default function Example() {
                                     >
                                       {section.items.map((item) => (
                                         <li key={item.name} className="flex">
-                                          <a href={item.href} className="hover:text-gray-800">
+                                          <Link href={item.href} className="hover:text-gray-800">
                                             {item.name}
-                                          </a>
+                                          </Link>
                                         </li>
                                       ))}
                                     </ul>
