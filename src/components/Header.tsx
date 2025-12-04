@@ -17,8 +17,8 @@ import {
   TabPanels,
 } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
-
-import WritenLogo from './WritenLogo';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import WritenLogo from './logo/WritenLogo';
 import { useSession, signOut } from "next-auth/react";
 
 import WalletIcon from './icons/WalletIcon';
@@ -27,20 +27,20 @@ import NotificationIcon from './icons/NotificationIcon';
 const navigation = {
   categories: [
     {
-      id: 'women',
+      id: 'cricket',
       name: 'Cricket',
       featured: [
         {
-          name: 'New Arrivals',
+          name: 'IPL',
           href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-01.jpg',
-          imageAlt: 'Models sitting back to back, wearing Basic Tee in black and bone.',
+          imageSrc: '/IPL.webp',
+          imageAlt: 'IPL Images',
         },
         {
-          name: 'Basic Tees',
+          name: 'T20',
           href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/mega-menu-category-02.jpg',
-          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.',
+          imageSrc: '/T20.jpg',
+          imageAlt: 'Close up of Basic Tee fall bundle with off-white, ochre, olive, and black tees.'
         },
       ],
       sections: [
@@ -48,53 +48,43 @@ const navigation = {
           id: 'clothing',
           name: 'IPL',
           items: [
-            { name: 'CSK vs DC', href: '#' },
-            { name: 'GT vs MI', href: '#' },
-            { name: 'KKR vs LSG', href: '#' },
-            { name: 'PBKS vs RR', href: '#' },
-            { name: 'PBKS vs RCB', href: '#' },
+            { name: 'Pending...', href: '#' },
+            
           ],
         },
         {
           id: 'accessories',
           name: 'T20',
           items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
+            { name: 'Pending...', href: '#' },
+            
           ],
         },
         {
           id: 'brands',
           name: 'ODI',
           items: [
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Significant Other', href: '#' },
+            { name: 'Pending...', href: '#' },
+          
           ],
         },
       ],
     },
     {
-      id: 'men',
+      id: 'casino',
       name: 'Casino',
       featured: [
         {
-          name: 'New Arrivals',
+          name: 'Roulette',
           href: '#',
           imageSrc:
-            'https://tailwindcss.com/plus-assets/img/ecommerce-images/product-page-04-detail-product-shot-01.jpg',
+            '/roulette.webp',
           imageAlt: 'Drawstring top with elastic loop closure and textured interior padding.',
         },
         {
-          name: 'Artwork Tees',
+          name: 'Slot',
           href: '#',
-          imageSrc: 'https://tailwindcss.com/plus-assets/img/ecommerce-images/category-page-02-image-card-06.jpg',
+          imageSrc: '/slot.webp',
           imageAlt:
             'Three shirts in gray, white, and blue arranged on table with same line drawing of hands and shapes overlapping on front of shirt.',
         },
@@ -102,37 +92,26 @@ const navigation = {
       sections: [
         {
           id: 'clothing',
-          name: 'Clothing',
+          name: 'Casino',
           items: [
-            { name: 'Tops', href: '#' },
-            { name: 'Pants', href: '#' },
-            { name: 'Sweaters', href: '#' },
-            { name: 'T-Shirts', href: '#' },
-            { name: 'Jackets', href: '#' },
-            { name: 'Activewear', href: '#' },
-            { name: 'Browse All', href: '#' },
+            { name: 'Pending...', href: '#' },
+          
           ],
         },
         {
           id: 'accessories',
-          name: 'Accessories',
+          name: 'Lottery',
           items: [
-            { name: 'Watches', href: '#' },
-            { name: 'Wallets', href: '#' },
-            { name: 'Bags', href: '#' },
-            { name: 'Sunglasses', href: '#' },
-            { name: 'Hats', href: '#' },
-            { name: 'Belts', href: '#' },
+            { name: 'Pending...', href: '#' },
+            
           ],
         },
         {
           id: 'brands',
-          name: 'Brands',
+          name: 'Card',
           items: [
-            { name: 'Re-Arranged', href: '#' },
-            { name: 'Counterfeit', href: '#' },
-            { name: 'Full Nelson', href: '#' },
-            { name: 'My Way', href: '#' },
+            { name: 'Pending...', href: '#' },
+            
           ],
         },
       ],
@@ -140,7 +119,7 @@ const navigation = {
   ],
   pages: [
     { name: 'Company', href: '#' },
-    { name: 'Stores', href: '#' },
+    { name: 'Account', href: '#' },
   ],
 }
 
@@ -213,7 +192,7 @@ export default function Example() {
                             {item.name}
                           </a>
                           <p aria-hidden="true" className="mt-1">
-                            Shop now
+                            Play now
                           </p>
                         </div>
                       ))}
@@ -254,12 +233,18 @@ export default function Example() {
             </div>
 
             <div className="space-y-6 border-t border-gray-200 px-4 py-6">
-              <div className="flow-root">
-                <a href="#" className="-m-2 block p-2 font-medium text-gray-900">
-                  {user.fullName}
-                  <p>{user.email}</p>
-                </a>
-              </div>
+             <div className="flex items-center gap-1">
+  <Avatar>
+    <AvatarImage src="https://github.com/shadcn.png" />
+    <AvatarFallback>CN</AvatarFallback>
+  </Avatar>
+
+  <div className="block p-2 font-medium text-gray-700 text-sm">
+    {user.fullName}
+    <p className="text-xs text-gray-500">{user.email}</p>
+  </div>
+</div>
+
               <div className="flow-root">
                  {user.email !== "example@email.com" ? (
         <button
@@ -413,8 +398,18 @@ export default function Example() {
       <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
 
       <div className="text-sm font-medium text-gray-700 hover:text-gray-800">
-        {user.fullName}
-        <p>{user.email}</p>
+        <div className="flex items-center gap-1">
+  <Avatar>
+    <AvatarImage src="https://github.com/shadcn.png" />
+    <AvatarFallback>CN</AvatarFallback>
+  </Avatar>
+
+  <div className="block p-2 font-medium text-gray-700 text-sm">
+    {user.fullName}
+    <p className="text-xs text-gray-500">{user.email}</p>
+  </div>
+</div>
+
       </div>
     </div>
 

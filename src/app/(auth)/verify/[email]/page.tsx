@@ -177,7 +177,7 @@ export default function OTPVerifyProGUI() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#031427] to-[#061827] flex items-start justify-center py-12 px-4 text-white">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 flex items-start justify-center py-12 px-4 text-gray-800">
       <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl">
         <div className="bg-white/6 rounded-2xl p-6 sm:p-8 lg:p-12 shadow-xl backdrop-blur-md">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
@@ -187,7 +187,7 @@ export default function OTPVerifyProGUI() {
                 className="w-14 sm:w-16 lg:w-20 h-14 sm:h-16 lg:h-20 object-cover rounded-md"
               />
               <div>
-                <div className="text-sm sm:text-base text-gray-300">
+                <div className="text-sm sm:text-base text-gray-500">
                   Verify your email
                 </div>
                 <div className="font-semibold text-lg sm:text-xl lg:text-2xl">
@@ -195,14 +195,14 @@ export default function OTPVerifyProGUI() {
                 </div>
               </div>
             </div>
-            <div className="text-sm sm:text-base text-gray-400 mt-2 lg:mt-0">
+            <div className="text-sm sm:text-base text-gray-500 mt-2 lg:mt-0">
               Secure • OTP expires in 5 min
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             <div>
-              <div className="text-sm sm:text-base text-gray-300 mb-2">
+              <div className="text-sm sm:text-base text-gray-500 mb-2">
                 Enter verification code
               </div>
               <div
@@ -222,49 +222,54 @@ export default function OTPVerifyProGUI() {
                       handleChange(e.target.value.replace(/\D/g, ""), i)
                     }
                     onKeyDown={(e) => handleKey(e, i)}
-                    className="w-10 sm:w-12 lg:w-16 h-12 sm:h-14 lg:h-16 text-center text-lg sm:text-xl lg:text-2xl rounded-xl bg-black/20 border border-white/6 focus:border-teal-300 focus:ring-2 focus:ring-teal-400 outline-none"
+                   className="w-10 sm:w-14 lg:w-16 h-12 sm:h-16 lg:h-18 text-center
+                  text-xl sm:text-2xl rounded-xl border border-gray-300 bg-white
+                  shadow-sm focus:ring-2 focus:ring-indigo-400 outline-none font-semibold"
                   />
                 ))}
               </div>
 
               <div className="mt-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 <div className="mt-4 flex flex-nowrap gap-2 items-center overflow-x-auto">
-                  <button
-                    onClick={triggerSend}
-                    disabled={loadingSend || cooldown > 0}
-                    className="flex-shrink-0 px-4 py-2 rounded-lg border border-white/10 text-white disabled:opacity-50"
-                  >
-                    {loadingSend
-                      ? "Sending..."
-                      : cooldown > 0
-                        ? `Resend in ${cooldown}s`
-                        : "Resend Email"}
-                  </button>
-                  <button
-                    onClick={handleVerify}
-                    disabled={loadingVerify}
-                    className="flex-shrink-0 px-4 py-2 rounded-lg bg-gradient-to-r from-teal-300 to-cyan-300 text-[#042322] font-semibold disabled:opacity-50"
-                  >
-                    {loadingVerify ? "Verifying..." : "Verify"}
-                  </button>
+                 <button
+                onClick={triggerSend}
+                disabled={loadingSend || cooldown > 0}
+                className="flex-shrink-0 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition disabled:opacity-40"
+              >
+                {loadingSend
+                  ? "Sending..."
+                  : cooldown > 0
+                  ? `Resend in ${cooldown}s`
+                  : "Resend OTP"}
+              </button>
+
+              <button
+                onClick={handleVerify}
+                disabled={loadingVerify}
+                className="flex-shrink-0 px-5 py-2.5 rounded-lg bg-indigo-600 text-white shadow-md font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+              >
+                {loadingVerify ? "Verifying..." : "Verify OTP"}
+              </button>
                 </div>
 
-                <div className="text-sm text-gray-400 ml-auto mt-2 sm:mt-0">
+                <div className="text-sm text-gray-900 ml-auto mt-2 sm:mt-0">
                   Resent {resendCount}/{maxResend}
                 </div>
               </div>
 
               {message && (
-                <div
-                  className={`mt-3 text-sm ${status === "error" ? "text-rose-300" : "text-green-200"}`}
-                >
-                  {message}
+              <div
+                className={`mt-3 text-sm font-medium ${
+                  status === "error" ? "text-red-500" : "text-green-600"
+                }`}
+              >
+                {message}
                 </div>
               )}
             </div>
 
             <div>
-              <div className="text-sm sm:text-base text-gray-300">
+              <div className="text-sm sm:text-base text-gray-900">
                 Help & Security
               </div>
               <div className="mt-3 text-sm sm:text-base text-gray-400 space-y-2">

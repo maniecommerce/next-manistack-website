@@ -19,24 +19,25 @@ export async function middleware(request: NextRequest) {
 
   const url = request.nextUrl;
 
-  const isAuthPage =
-    url.pathname === "/sign-in" ||
-    url.pathname === "/sign-up" ||
-    url.pathname === "/" ||
+  // Public routes that don't require login
+  const publicAuthPages = ["/sign-in", "/sign-up"];
+  const isPublicAuthPage =
+    publicAuthPages.includes(url.pathname) ||
     url.pathname.startsWith("/verify");
 
-  const isDashboardPage = url.pathname.startsWith("/dashboard");
+  const isDashboard = url.pathname.startsWith("/dashboard");
+  const isHome = url.pathname === "/";
 
   // ---- RULE #1 ----
-  // If user is already logged in and tries to access auth pages → send to dashboard
-  if (token && isAuthPage) {
+  // Already logged in → redirect to dashboard if trying to visit home or login page
+  if (token && (isPublicAuthPage || isHome)) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // ---- RULE #2 ----
-  // If user is not logged in and tries to access dashboard → redirect to login with callbackUrl
-  if (!token && isDashboardPage) {
-    url.searchParams.set("callbackUrl", url.pathname); 
+  // Not logged in → block dashboard or home & force login
+  if (!token && (isDashboard || isHome)) {
+    url.searchParams.set("callbackUrl", url.pathname);
     return NextResponse.redirect(
       new URL(`/sign-in?${url.searchParams}`, request.url)
     );

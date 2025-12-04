@@ -5,7 +5,7 @@ import AuthProvider from '../context/AuthProvider';
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/Header"
 import ReduxProvider from "@/context/ReduxProvider";
-import SessionSync from "@/components/SessionSync";
+
 
 
 const geistSans = Geist({
@@ -47,7 +47,7 @@ export default function RootLayout({
       >
 
 
-            <SessionSync />
+           
 
 
         {children}

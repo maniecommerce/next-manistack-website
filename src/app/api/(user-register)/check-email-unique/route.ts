@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     });
 
     if (existingVerifiedEmail) {
-      return ApiError("Username is already taken",400) }
+      return ApiError("Email ID is already taken",400) }
 
     return ApiSuccess("Email is unique",200) 
   } catch (error) {
