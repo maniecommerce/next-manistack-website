@@ -1,7 +1,10 @@
 "use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 export default function WritenLogo() {
+
+
   return (
     <>
       {/* Logo */}
@@ -19,7 +22,7 @@ export default function WritenLogo() {
     drop-shadow-[0_0_12px_#0FFFE6]
   "
       >
-        <Link href="/">GAMIX</Link>
+        <div>GAMIX</div>
       </motion.div>
     </>
   );

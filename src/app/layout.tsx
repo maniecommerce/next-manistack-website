@@ -4,7 +4,8 @@ import "./globals.css";
 import AuthProvider from '../context/AuthProvider';
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/Header"
-import Navbar from "@/components/header/Navbar"
+import ReduxProvider from "@/context/ReduxProvider";
+import SessionSync from "@/components/SessionSync";
 
 
 const geistSans = Geist({
@@ -37,13 +38,17 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-      
-      <AuthProvider>
+      <ReduxProvider>
+         <AuthProvider>
       <body
         className={`${geistSans.variable} ${geistMono.variable}
          antialiased`}
         //  className={inter.className}
       >
+
+
+            <SessionSync />
+
 
         {children}
         <Toaster position="top-right" richColors /> 
@@ -54,6 +59,8 @@ export default function RootLayout({
         
       </AuthProvider>
        
+      </ReduxProvider>
+     
     </html>
   );
 }
