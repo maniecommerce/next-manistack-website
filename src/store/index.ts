@@ -1,14 +1,18 @@
-// store/index.ts
-import { configureStore } from '@reduxjs/toolkit'
-import { useDispatch } from 'react-redux'
-import authReducer from './slices/authSlice'
+"use client";
+
+import { configureStore } from "@reduxjs/toolkit";
+import gameReducer from "./slices/gameSlice";
+import { useDispatch } from "react-redux";
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+    games: gameReducer,
   },
-})
+});
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-export const useAppDispatch = () => useDispatch<AppDispatch>()
+// types
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+// Custom Hook
+export const useAppDispatch = () => useDispatch<AppDispatch>();
