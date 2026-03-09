@@ -21,7 +21,7 @@ type SignUpData = z.infer<typeof signUpSchema>;
 
 declare global {
   interface Window {
-    grecaptcha: any;
+    grecaptcha?: any;
   }
 }
 
