@@ -77,7 +77,7 @@ export function VideoSlots(){
     }
   }
 
-  function evaluate(results, betAmount, paytable){
+  function evaluate(results: any, betAmount: number, paytable: any){
     // Simple evaluation: only center row payline, 3+ matching from left
     const center = results.map(col=> col[1]);
     // count consecutive from left
