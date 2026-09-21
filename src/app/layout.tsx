@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AuthProvider from '../context/AuthProvider';
+import AuthProvider from "../context/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
-import Header from "@/components/Header"
+import Header from "@/components/Header";
 import ReduxProvider from "@/context/ReduxProvider";
-
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,37 +28,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Google reCAPTCHA v3 Script */}
-        <script
-          src={`https://www.google.com/recaptcha/api.js?render=${process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}`}
-          async
-          defer
-        ></script>
-      </head>
       <ReduxProvider>
-         <AuthProvider>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable}
-         antialiased`}
-        //  className={inter.className}
-      >
+        <AuthProvider>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            {children}
 
-
-           
-
-
-        {children}
-        <Toaster position="top-right" richColors /> 
-      </body>
-
-      
-        
-        
-      </AuthProvider>
-       
+            <Toaster
+              position="top-right"
+              richColors
+            />
+          </body>
+        </AuthProvider>
       </ReduxProvider>
-     
     </html>
   );
 }
