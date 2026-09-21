@@ -41,8 +41,7 @@ export async function POST(request: Request) {
     return ApiSuccess(
       "User registered successfully. Please verify your account.",
       {
-        user: { username: fullName, email },
-        recaptchaScore: recaptchaResponse.score, // optional debug info
+        user: { username: fullName, email }, // optional debug info
       }
     );
   } catch (error) {
