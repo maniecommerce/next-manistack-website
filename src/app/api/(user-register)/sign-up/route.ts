@@ -4,36 +4,13 @@ import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import UserModel from "@/model/User.model";
 import IdentifierModel from "@/model/Identifier.model";
 import { ApiError, ApiSuccess } from "@/types/ApiResponse";
-import { verifyRecaptcha } from "@/helpers/verifyRecaptcha";
+
 
 export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { fullName, email, password, recaptchaToken } = await request.json();
-
-    if (!recaptchaToken) {
-      return ApiError("reCAPTCHA token missing", 400);
-    }
-
-    // 1️⃣ Professional reCAPTCHA v3 Verification
-    const recaptchaResponse = await verifyRecaptcha(recaptchaToken, "signup");
-
-    if (!recaptchaResponse.success) {
-      return ApiError(`reCAPTCHA failed: ${recaptchaResponse.reason}`, 400);
-    }
-
-    // Optional: check score threshold
-    const MIN_SCORE = 0.5; // recommended threshold
-    if (recaptchaResponse.score < MIN_SCORE) {
-      return ApiError(
-        `reCAPTCHA score too low (${recaptchaResponse.score}). Suspicious activity detected.`,
-        403
-      );
-    }
-
-   
-
+    const { fullName, email, password} = await request.json()
     // 2️⃣ Check if verified user already exists
     const existingUser = await UserModel.findOne({ email, isVerified: true });
     if (existingUser) {
